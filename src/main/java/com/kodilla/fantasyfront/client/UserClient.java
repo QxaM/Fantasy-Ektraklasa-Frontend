@@ -38,8 +38,22 @@ public class UserClient {
         return restTemplate.postForObject(url, entity, UserDto.class);
     }
 
+    public UserDto getUser(Long id) {
+        URI url = buildGetUser(id);
+        return restTemplate.getForObject(url, UserDto.class);
+    }
+
     private URI buildCreateUserUrl() {
         return UriComponentsBuilder.fromHttpUrl(config.getUrl() + config.getUsers())
+                .build()
+                .encode()
+                .toUri();
+    }
+
+    private URI buildGetUser(Long id) {
+        return UriComponentsBuilder.fromHttpUrl(config.getUrl()
+                        + config.getUsers()
+                        + "/" + id)
                 .build()
                 .encode()
                 .toUri();

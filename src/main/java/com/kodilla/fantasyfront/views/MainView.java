@@ -2,6 +2,7 @@ package com.kodilla.fantasyfront.views;
 
 import com.kodilla.fantasyfront.client.UserClient;
 import com.kodilla.fantasyfront.domain.dto.*;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -41,6 +42,6 @@ public class MainView extends VerticalLayout {
         );
         UserDto createdUser = userClient.createUser(createUserDto);
         Notification.show("User " + createdUser.getUsername() +  " created!");
-
+        UI.getCurrent().navigate(UserView.class, createdUser.getId());
     }
 }
