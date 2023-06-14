@@ -74,9 +74,16 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
         squadGrid.setWidth("100%");
         squadGrid.setHeight("80%");
 
+        HorizontalLayout squadNavigation = new HorizontalLayout();
+
         Button createNewSquad = new Button("New Squad");
         createNewSquad.addClickListener(event -> createNewSquad(userId.getValue().longValue(), squadName.getValue()));
-        squadForm.add(squadName, squadGrid, createNewSquad);
+
+        Button addPlayers = new Button("Add players");
+        addPlayers.addClickListener(event -> addPlayers(userId.getValue().longValue(), user.getSquad().getId()));
+        squadNavigation.add(createNewSquad, addPlayers);
+
+        squadForm.add(squadName, squadGrid, squadNavigation);
         squadForm.setWidth("75%");
 
         HorizontalLayout userAndSquad = new HorizontalLayout();
@@ -106,6 +113,10 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
     public void createNewSquad(Long userId, String squadName) {
         userClient.createSquad(userId, squadName);
         Notification.show("New squad " + squadName + " created!");
+    }
+
+    public void addPlayers(Long userId, Long squadId) {
+        UI.getCurrent().navigate("/player/" + userId + "/" + squadId);
     }
 
     @Override
