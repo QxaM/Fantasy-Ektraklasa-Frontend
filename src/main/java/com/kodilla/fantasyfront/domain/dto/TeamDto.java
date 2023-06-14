@@ -12,4 +12,9 @@ public class TeamDto {
     private Long id;
     private String name;
     private String code;
+
+    @Override
+    public String toString() {
+        return code;
+    }
 }
