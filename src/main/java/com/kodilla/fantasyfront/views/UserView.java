@@ -2,6 +2,7 @@ package com.kodilla.fantasyfront.views;
 
 import com.kodilla.fantasyfront.client.SquadClient;
 import com.kodilla.fantasyfront.client.UserClient;
+import com.kodilla.fantasyfront.domain.dto.LeagueDto;
 import com.kodilla.fantasyfront.domain.dto.PlayerDto;
 import com.kodilla.fantasyfront.domain.dto.SquadDto;
 import com.kodilla.fantasyfront.domain.dto.UserDto;
@@ -9,6 +10,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -133,7 +135,25 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
         userAndSquad.setSizeFull();
         userAndSquad.add(userForm, squadForm);
 
-        add(userAndSquad);
+        HorizontalLayout leagueLayout = new HorizontalLayout();
+
+        VerticalLayout leagueControls = new VerticalLayout();
+
+        Button showAllLeagues = new Button("All Leagues");
+        showAllLeagues.addClickListener(event -> UI.getCurrent().navigate(LeaguesView.class, user.getId()));
+
+        Button exitLeague = new Button("Exit League");
+
+        leagueControls.add(showAllLeagues, exitLeague);
+        leagueControls.setWidth("15%");
+
+        Grid<LeagueDto> leagueGrid = new Grid<>(LeagueDto.class);
+        leagueGrid.setColumns("id", "name");
+
+        leagueLayout.add(leagueControls, leagueGrid);
+        leagueLayout.setWidthFull();
+
+        add(userAndSquad, leagueLayout);
     }
 
     public void getUser(Long id) {
