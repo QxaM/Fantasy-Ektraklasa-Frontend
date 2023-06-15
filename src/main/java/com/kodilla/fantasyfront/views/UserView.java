@@ -1,5 +1,6 @@
 package com.kodilla.fantasyfront.views;
 
+import com.kodilla.fantasyfront.client.LeagueClient;
 import com.kodilla.fantasyfront.client.SquadClient;
 import com.kodilla.fantasyfront.client.UserClient;
 import com.kodilla.fantasyfront.domain.dto.LeagueDto;
@@ -21,12 +22,15 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
+import java.util.List;
+
 
 @Route("user")
 public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final UserClient userClient;
     private final SquadClient squadClient;
+    private final LeagueClient leagueClient;
     private UserDto user;
 
     private final IntegerField userId;
@@ -35,10 +39,12 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
     private final IntegerField userPoints;
     private final TextField squadName;
     private final Grid<PlayerDto> squadGrid;
+    private final Grid<LeagueDto> leagueGrid;
 
-    public UserView(UserClient userClient, SquadClient squadClient) {
+    public UserView(UserClient userClient, SquadClient squadClient, LeagueClient leagueClient) {
         this.userClient = userClient;
         this.squadClient = squadClient;
+        this.leagueClient = leagueClient;
 
         userId = new IntegerField("User ID");
         userId.setSizeFull();
@@ -138,18 +144,24 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
 
         HorizontalLayout leagueLayout = new HorizontalLayout();
 
+        leagueGrid = new Grid<>(LeagueDto.class);
+        leagueGrid.setColumns("id", "name");
+
         VerticalLayout leagueControls = new VerticalLayout();
 
         Button showAllLeagues = new Button("All Leagues");
         showAllLeagues.addClickListener(event -> UI.getCurrent().navigate(LeaguesView.class, user.getId()));
 
         Button exitLeague = new Button("Exit League");
+        exitLeague.addClickListener(event -> {
+            if (!leagueGrid.asSingleSelect().isEmpty()) {
+                Long leagueId = leagueGrid.asSingleSelect().getValue().getId();
+                exitLeague(leagueId);
+            }
+        });
 
         leagueControls.add(showAllLeagues, exitLeague);
         leagueControls.setWidth("15%");
-
-        Grid<LeagueDto> leagueGrid = new Grid<>(LeagueDto.class);
-        leagueGrid.setColumns("id", "name");
 
         leagueLayout.add(leagueControls, leagueGrid);
         leagueLayout.setWidthFull();
@@ -187,6 +199,11 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
         UI.getCurrent().navigate("/player/" + userId + "/" + squadId);
     }
 
+    public void exitLeague(Long leagueId) {
+        leagueClient.removeUser(leagueId, user.getId());
+        refreshLeagues(user);
+    }
+
     @Override
     public void setParameter(BeforeEvent event, Long parameter) {
         getUser(parameter);
@@ -201,5 +218,11 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
             squadName.setValue(user.getSquad().getName());
         }
         squadGrid.setItems(user.getSquad().getPlayers());
+        refreshLeagues(user);
+    }
+
+    public void refreshLeagues(UserDto user) {
+        List<LeagueDto> foundLeagues = leagueClient.getLeaguesByUserId(user.getId());
+        leagueGrid.setItems(foundLeagues);
     }
 }

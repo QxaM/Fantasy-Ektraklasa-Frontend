@@ -33,6 +33,16 @@ public class LeagueClient {
         return restTemplate.getForObject(url, LeagueDto.class);
     }
 
+    public List<LeagueDto> getLeaguesByUserId(Long id) throws NoBodyException {
+        URI url = buildLeagueByUserUrl(id);
+        LeagueDto[] response = restTemplate.getForObject(url, LeagueDto[].class);
+        if (response != null) {
+            return List.of(response);
+        } else {
+            throw new NoBodyException("No response getting leagues");
+        }
+    }
+
     public LeagueDto createLeague(String leagueName) {
         URI url = buildCreateLeagueUrl(leagueName);
         return restTemplate.postForObject(url, null, LeagueDto.class);
@@ -63,6 +73,16 @@ public class LeagueClient {
     private URI buildLeagueIdUrl(Long id) {
         return UriComponentsBuilder.fromHttpUrl(config.getUrl()
                         + config.getLeagues()
+                        + "/" + id)
+                .build()
+                .encode()
+                .toUri();
+    }
+
+    private URI buildLeagueByUserUrl(Long id) {
+        return UriComponentsBuilder.fromHttpUrl(config.getUrl()
+                        + config.getLeagues()
+                        + "/byUser"
                         + "/" + id)
                 .build()
                 .encode()
