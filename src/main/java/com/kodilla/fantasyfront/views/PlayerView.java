@@ -120,7 +120,28 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
         squadGrid.setColumns("id", "firstname", "lastname", "age", "value", "position", "team", "points");
         squadGrid.setAllRowsVisible(true);
 
-        squadLayout.add(textField, squadGrid);
+        Dialog removePlayerDialog = new Dialog();
+        removePlayerDialog.setHeaderTitle("Confirm remove player:");
+
+        Button removePlayer = new Button("Remove player");
+        removePlayer.addClickListener(event -> removePlayerFromSquad(squadId));
+
+        Button closeRemove = new Button("Exit");
+        closeRemove.addClickListener(event -> removePlayerDialog.close());
+
+        HorizontalLayout removeButtonsLayout = new HorizontalLayout();
+        removeButtonsLayout.add(removePlayer, closeRemove);
+        removeButtonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);;
+        removePlayerDialog.add(removeButtonsLayout);
+
+        squadGrid.asSingleSelect().addValueChangeListener(event -> {
+            if(!squadGrid.asSingleSelect().isEmpty()) {
+                clickedPlayer = squadGrid.asSingleSelect().getValue();
+                removePlayerDialog.open();
+            }
+        });
+
+        squadLayout.add(textField, squadGrid, removePlayerDialog);
 
         add(playerLayout, squadLayout);
     }
@@ -141,6 +162,18 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
             refreshSquad();
         }
     }
+
+    private void removePlayerFromSquad(Long squadId) {
+        try {
+            shownSquad = squadClient.removePlayer(squadId, clickedPlayer.getId());
+            Notification.show("Removed player " + clickedPlayer.getId() + " from squad!");
+        } catch (NoBodyException | HttpClientErrorException e) {
+            Notification.show(e.getMessage());
+        } finally {
+            refreshSquad();
+        }
+    }
+
 
     @Override
     public void setParameter(BeforeEvent event,
