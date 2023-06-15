@@ -17,4 +17,6 @@ public class EndpointConfig {
     private String createSquad;
     @Value("${endpoint.squads}")
     private String squads;
+    @Value("${endpoint.leagues}")
+    private String leagues;
 }

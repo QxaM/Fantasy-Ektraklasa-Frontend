@@ -26,17 +26,11 @@ public class SquadClient {
         return restTemplate.getForObject(url, SquadDto.class);
     }
 
-    public SquadDto updateSquad(SquadDto squad) throws NoBodyException {
+    public void updateSquad(SquadDto squad) throws NoBodyException {
         URI url = buildSquadUrl();
         HttpEntity<String> entity = HeadersBuilder.buildHeaders(squad);
 
-        ResponseEntity<SquadDto> response = restTemplate.exchange(url, HttpMethod.PUT, entity, SquadDto.class);
-
-        if (response.hasBody()) {
-            return response.getBody();
-        } else {
-            throw new NoBodyException("No body response when updating squad: " + squad.getId());
-        }
+        restTemplate.exchange(url, HttpMethod.PUT, entity, SquadDto.class);
     }
 
     public SquadDto addPlayer(Long squadId, Long playerId) throws NoBodyException {
