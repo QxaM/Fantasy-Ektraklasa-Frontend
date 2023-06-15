@@ -120,6 +120,7 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
         renameButtonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
         renameSquadLayout.add(newName, renameButtonsLayout);
+        renameSquadLayout.setAlignItems(Alignment.CENTER);
 
         Button renameSquad = new Button("Rename squad");
         renameSquad.addClickListener(event -> renameSquadDialog.open());

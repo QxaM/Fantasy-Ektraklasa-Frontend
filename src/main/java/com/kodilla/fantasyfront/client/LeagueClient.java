@@ -21,10 +21,24 @@ public class LeagueClient {
         return restTemplate.getForObject(url, LeagueDto.class);
     }
 
+    public LeagueDto createLeague(String leagueName) {
+        URI url = buildCreateLeagueUrl(leagueName);
+        return restTemplate.postForObject(url, null, LeagueDto.class);
+    }
+
     private URI buildLeagueUrl(Long id) {
         return UriComponentsBuilder.fromHttpUrl(config.getUrl()
                         + config.getLeagues()
                         + "/" + id)
+                .build()
+                .encode()
+                .toUri();
+    }
+
+    private URI buildCreateLeagueUrl(String leagueName) {
+        return UriComponentsBuilder.fromHttpUrl(config.getUrl()
+                        + config.getLeagues()
+                        + "/" + leagueName)
                 .build()
                 .encode()
                 .toUri();
