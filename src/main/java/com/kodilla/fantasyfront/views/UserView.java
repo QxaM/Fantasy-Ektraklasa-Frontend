@@ -1,10 +1,13 @@
 package com.kodilla.fantasyfront.views;
 
+import com.kodilla.fantasyfront.client.SquadClient;
 import com.kodilla.fantasyfront.client.UserClient;
 import com.kodilla.fantasyfront.domain.dto.PlayerDto;
+import com.kodilla.fantasyfront.domain.dto.SquadDto;
 import com.kodilla.fantasyfront.domain.dto.UserDto;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -16,10 +19,12 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
+
 @Route("user")
 public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final UserClient userClient;
+    private final SquadClient squadClient;
     private UserDto user;
 
     private final IntegerField userId;
@@ -29,8 +34,9 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
     private final TextField squadName;
     private final Grid<PlayerDto> squadGrid;
 
-    public UserView(UserClient userClient) {
+    public UserView(UserClient userClient, SquadClient squadClient) {
         this.userClient = userClient;
+        this.squadClient = squadClient;
 
         userId = new IntegerField("User ID");
         userId.setSizeFull();
@@ -81,7 +87,44 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
 
         Button addPlayers = new Button("Add players");
         addPlayers.addClickListener(event -> addPlayers(userId.getValue().longValue(), user.getSquad().getId()));
-        squadNavigation.add(createNewSquad, addPlayers);
+
+        Dialog renameSquadDialog = new Dialog();
+        renameSquadDialog.setHeaderTitle("Rename squad to:");
+
+        VerticalLayout renameSquadLayout = new VerticalLayout();
+
+        TextField newName = new TextField();
+        newName.setWidthFull();
+
+        HorizontalLayout renameButtonsLayout = new HorizontalLayout();
+
+        Button confirmRename = new Button("Rename");
+        confirmRename.addClickListener(event -> {
+            SquadDto newSquad = new SquadDto(
+                    user.getSquad().getId(),
+                    newName.getValue(),
+                    user.getSquad().getCurrentValue(),
+                    user.getSquad().getPlayers()
+            );
+            renameSquad(newSquad);
+            getUser(user.getId());
+            renameSquadDialog.close();
+        });
+
+        Button exitRename = new Button("Exit");
+        exitRename.addClickListener(event -> renameSquadDialog.close());
+
+        renameButtonsLayout.add(confirmRename, exitRename);
+        renameButtonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+
+        renameSquadLayout.add(newName, renameButtonsLayout);
+
+        Button renameSquad = new Button("Rename squad");
+        renameSquad.addClickListener(event -> renameSquadDialog.open());
+
+        renameSquadDialog.add(renameSquadLayout);
+
+        squadNavigation.add(createNewSquad, renameSquad, addPlayers, renameSquadDialog);
 
         squadForm.add(squadName, squadGrid, squadNavigation);
         squadForm.setWidth("75%");
@@ -113,6 +156,10 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
     public void createNewSquad(Long userId, String squadName) {
         userClient.createSquad(userId, squadName);
         Notification.show("New squad " + squadName + " created!");
+    }
+
+    public void renameSquad(SquadDto squad) {
+        squadClient.updateSquad(squad);
     }
 
     public void addPlayers(Long userId, Long squadId) {

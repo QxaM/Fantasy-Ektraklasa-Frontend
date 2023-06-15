@@ -3,9 +3,10 @@ package com.kodilla.fantasyfront.client;
 import com.kodilla.fantasyfront.config.EndpointConfig;
 import com.kodilla.fantasyfront.domain.dto.SquadDto;
 import com.kodilla.fantasyfront.domain.exception.NoBodyException;
+import com.kodilla.fantasyfront.service.HeadersBuilder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -21,8 +22,21 @@ public class SquadClient {
     private final EndpointConfig config;
 
     public SquadDto getSquad(Long squadId) {
-        URI url = buildSquadUrl(squadId);
+        URI url = buildSquadIdUrl(squadId);
         return restTemplate.getForObject(url, SquadDto.class);
+    }
+
+    public SquadDto updateSquad(SquadDto squad) throws NoBodyException {
+        URI url = buildSquadUrl();
+        HttpEntity<String> entity = HeadersBuilder.buildHeaders(squad);
+
+        ResponseEntity<SquadDto> response = restTemplate.exchange(url, HttpMethod.PUT, entity, SquadDto.class);
+
+        if (response.hasBody()) {
+            return response.getBody();
+        } else {
+            throw new NoBodyException("No body response when updating squad: " + squad.getId());
+        }
     }
 
     public SquadDto addPlayer(Long squadId, Long playerId) throws NoBodyException {
@@ -47,7 +61,15 @@ public class SquadClient {
         }
     }
 
-    private URI buildSquadUrl(Long squadId) {
+    private URI buildSquadUrl() {
+        return UriComponentsBuilder.fromHttpUrl(config.getUrl()
+                        + config.getSquads())
+                .build()
+                .encode()
+                .toUri();
+    }
+
+    private URI buildSquadIdUrl(Long squadId) {
         return UriComponentsBuilder.fromHttpUrl(config.getUrl()
                         + config.getSquads()
                         + "/" + squadId)

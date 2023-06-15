@@ -5,6 +5,7 @@ import com.kodilla.fantasyfront.config.EndpointConfig;
 import com.kodilla.fantasyfront.domain.dto.CreateUserDto;
 import com.kodilla.fantasyfront.domain.dto.UserDto;
 import com.kodilla.fantasyfront.domain.exception.NoBodyException;
+import com.kodilla.fantasyfront.service.HeadersBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -22,14 +23,14 @@ public class UserClient {
 
     public UserDto createUser(CreateUserDto createUserDto) {
         URI url = buildUserUrl();
-        HttpEntity<String> entity = buildHeaders(createUserDto);
+        HttpEntity<String> entity = HeadersBuilder.buildHeaders(createUserDto);
 
         return restTemplate.postForObject(url, entity, UserDto.class);
     }
 
     public UserDto updateUser(UserDto userDto) throws NoBodyException {
         URI url = buildUserUrl();
-        HttpEntity<String> entity = buildHeaders(userDto);
+        HttpEntity<String> entity = HeadersBuilder.buildHeaders(userDto);
 
         ResponseEntity<UserDto> response = restTemplate
                 .exchange(url, HttpMethod.PUT, entity, UserDto.class);
@@ -81,15 +82,5 @@ public class UserClient {
                 .build()
                 .encode()
                 .toUri();
-    }
-
-    private HttpEntity<String> buildHeaders(Object object) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        Gson gson = new Gson();
-        String jsonContent = gson.toJson(object);
-
-        return new HttpEntity<>(jsonContent, headers);
     }
 }
