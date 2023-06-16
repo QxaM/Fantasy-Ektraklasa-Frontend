@@ -2,13 +2,11 @@ package com.kodilla.fantasyfront.views.players;
 
 import com.kodilla.fantasyfront.client.PlayerClient;
 import com.kodilla.fantasyfront.client.SquadClient;
+import com.kodilla.fantasyfront.domain.SortType;
 import com.kodilla.fantasyfront.domain.dto.PlayerDto;
 import com.kodilla.fantasyfront.domain.dto.PlayersPagedDto;
 import com.kodilla.fantasyfront.domain.dto.SquadDto;
 import com.kodilla.fantasyfront.domain.exception.NoBodyException;
-import com.kodilla.fantasyfront.views.user.UserView;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
@@ -39,16 +37,13 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
         this.playerClient = playerClient;
         this.squadClient = squadClient;
 
-        Button returnButton = new Button("Return to user");
-        returnButton.addClickListener(event -> UI.getCurrent().navigate(UserView.class, userId));
-
         playersForm = new PlayersForm(this);
         initPlayersAndSquad();
         refreshPaging();
 
         squadForm = new UserSquadForm(this);
 
-        add(returnButton, playersForm, squadForm);
+        add(playersForm, squadForm);
     }
 
     public Long getSquadId() {
@@ -67,12 +62,16 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
         this.page = page;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
     public PlayersPagedDto getFoundPlayers() {
         return foundPlayers;
     }
 
-    public void fetchPlayers(int page) {
-        foundPlayers = playerClient.getPlayers(page);
+    public void fetchPlayers(int page, SortType sortType) {
+        foundPlayers = playerClient.getPlayers(page, sortType);
         playersForm.refreshGrid(foundPlayers.getPlayer());
         refreshPaging();
     }
@@ -111,7 +110,7 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
     }
 
     public void initPlayersAndSquad() {
-        foundPlayers = playerClient.getPlayers(0);
+        foundPlayers = playerClient.getPlayers(0, SortType.ID_ASCENDING);
         playersForm.refreshGrid(foundPlayers.getPlayer());
     }
 

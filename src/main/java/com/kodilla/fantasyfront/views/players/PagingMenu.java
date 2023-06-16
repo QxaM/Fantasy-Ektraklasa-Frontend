@@ -10,7 +10,7 @@ public class PagingMenu extends HorizontalLayout {
 
     private final TextField paging;
 
-    public PagingMenu(PlayerView playerView) {
+    public PagingMenu(PlayerView playerView, PlayersForm playersForm) {
 
         Button previousPage = new Button("<-");
         previousPage.addClickListener(event -> {
@@ -18,7 +18,7 @@ public class PagingMenu extends HorizontalLayout {
 
             if(page > 0) {
                 --page;
-                playerView.fetchPlayers(page);
+                playerView.fetchPlayers(page, playersForm.getSortType());
                 playerView.setPage(page);
             }
         });
@@ -30,7 +30,7 @@ public class PagingMenu extends HorizontalLayout {
 
             if(page < (foundPlayers.getPage().getFinalPage() - 1)) {
                 ++page;
-                playerView.fetchPlayers(page);
+                playerView.fetchPlayers(page, playersForm.getSortType());
                 playerView.setPage(page);
             }
         });
