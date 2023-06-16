@@ -1,7 +1,7 @@
 package com.kodilla.fantasyfront.views.user;
 
 import com.kodilla.fantasyfront.domain.dto.LeagueDto;
-import com.kodilla.fantasyfront.views.LeaguesView;
+import com.kodilla.fantasyfront.views.leagues.LeaguesView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
