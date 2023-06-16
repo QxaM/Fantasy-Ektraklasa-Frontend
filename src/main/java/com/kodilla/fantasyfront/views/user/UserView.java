@@ -6,11 +6,8 @@ import com.kodilla.fantasyfront.client.UserClient;
 import com.kodilla.fantasyfront.domain.dto.LeagueDto;
 import com.kodilla.fantasyfront.domain.dto.SquadDto;
 import com.kodilla.fantasyfront.domain.dto.UserDto;
-import com.kodilla.fantasyfront.views.LeaguesView;
 import com.kodilla.fantasyfront.views.main.MainView;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -29,8 +26,8 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
     private final LeagueClient leagueClient;
     private final UserForm userForm;
     private final SquadForm squadForm;
+    private final LeagueForm leagueForm;
     private UserDto user;
-    private final Grid<LeagueDto> leagueGrid;
 
     public UserView(UserClient userClient, SquadClient squadClient, LeagueClient leagueClient) {
         this.userClient = userClient;
@@ -39,43 +36,18 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
 
         userForm = new UserForm();
         UserMenu userMenu = new UserMenu(this, userForm);
-
-        VerticalLayout userControls = new VerticalLayout();
-        userControls.add(userForm, userMenu);
-        userControls.setWidth("25%");
-
+        VerticalLayout userControls = new VerticalLayout(userForm, userMenu);
         squadForm = new SquadForm(this, userForm);
+        HorizontalLayout userAndSquad = new HorizontalLayout(userControls, squadForm);
+
+        userControls.setWidth("25%");
         squadForm.setWidth("75%");
-
-        HorizontalLayout userAndSquad = new HorizontalLayout();
         userAndSquad.setSizeFull();
-        userAndSquad.add(userControls, squadForm);
 
-        HorizontalLayout leagueLayout = new HorizontalLayout();
+        leagueForm = new LeagueForm(this);
+        leagueForm.setWidthFull();
 
-        leagueGrid = new Grid<>(LeagueDto.class);
-        leagueGrid.setColumns("id", "name");
-
-        VerticalLayout leagueControls = new VerticalLayout();
-
-        Button showAllLeagues = new Button("All Leagues");
-        showAllLeagues.addClickListener(event -> UI.getCurrent().navigate(LeaguesView.class, user.getId()));
-
-        Button exitLeague = new Button("Exit League");
-        exitLeague.addClickListener(event -> {
-            if (!leagueGrid.asSingleSelect().isEmpty()) {
-                Long leagueId = leagueGrid.asSingleSelect().getValue().getId();
-                exitLeague(leagueId);
-            }
-        });
-
-        leagueControls.add(showAllLeagues, exitLeague);
-        leagueControls.setWidth("15%");
-
-        leagueLayout.add(leagueControls, leagueGrid);
-        leagueLayout.setWidthFull();
-
-        add(userAndSquad, leagueLayout);
+        add(userAndSquad, leagueForm);
     }
 
     public UserDto getUser() {
@@ -138,6 +110,6 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
 
     public void refreshLeagues(UserDto user) {
         List<LeagueDto> foundLeagues = leagueClient.getLeaguesByUserId(user.getId());
-        leagueGrid.setItems(foundLeagues);
+        leagueForm.refreshGrid(foundLeagues);
     }
 }
