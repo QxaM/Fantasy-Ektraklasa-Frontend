@@ -9,13 +9,8 @@ import com.kodilla.fantasyfront.domain.exception.NoBodyException;
 import com.kodilla.fantasyfront.views.user.UserView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
@@ -35,9 +30,8 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
     private PlayersPagedDto foundPlayers;
     private PlayerDto clickedPlayer;
     private final PlayersForm playersForm;
+    private final UserSquadForm squadForm;
     private SquadDto shownSquad;
-    private final TextField textField;
-    private final Grid<PlayerDto> squadGrid;
 
     private int page = 0;
 
@@ -52,41 +46,9 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
         initPlayersAndSquad();
         refreshPaging();
 
-        VerticalLayout squadLayout = new VerticalLayout();
+        squadForm = new UserSquadForm(this);
 
-        textField = new TextField();
-        textField.setWidthFull();
-        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        textField.setReadOnly(true);
-
-        squadGrid = new Grid<>(PlayerDto.class);
-        squadGrid.setColumns("id", "firstname", "lastname", "age", "value", "position", "team", "points");
-        squadGrid.setAllRowsVisible(true);
-
-        Dialog removePlayerDialog = new Dialog();
-        removePlayerDialog.setHeaderTitle("Confirm remove player:");
-
-        Button removePlayer = new Button("Remove player");
-        removePlayer.addClickListener(event -> removePlayerFromSquad(squadId));
-
-        Button closeRemove = new Button("Exit");
-        closeRemove.addClickListener(event -> removePlayerDialog.close());
-
-        HorizontalLayout removeButtonsLayout = new HorizontalLayout();
-        removeButtonsLayout.add(removePlayer, closeRemove);
-        removeButtonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-        removePlayerDialog.add(removeButtonsLayout);
-
-        squadGrid.asSingleSelect().addValueChangeListener(event -> {
-            if(!squadGrid.asSingleSelect().isEmpty()) {
-                clickedPlayer = squadGrid.asSingleSelect().getValue();
-                removePlayerDialog.open();
-            }
-        });
-
-        squadLayout.add(textField, squadGrid, removePlayerDialog);
-
-        add(returnButton, playersForm, squadLayout);
+        add(returnButton, playersForm, squadForm);
     }
 
     public Long getSquadId() {
@@ -126,7 +88,7 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
         }
     }
 
-    private void removePlayerFromSquad(Long squadId) {
+    public void removePlayerFromSquad(Long squadId) {
         try {
             shownSquad = squadClient.removePlayer(squadId, clickedPlayer.getId());
             Notification.show("Removed player " + clickedPlayer.getId() + " from squad!");
@@ -145,7 +107,7 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
         squadId = Long.parseLong(parameters.get(1));
         shownSquad = squadClient.getSquad(squadId);
         refreshSquad();
-        textField.setValue(shownSquad.getName());
+        squadForm.setSquadName(shownSquad.getName());
     }
 
     public void initPlayersAndSquad() {
@@ -160,6 +122,6 @@ public class PlayerView extends VerticalLayout implements HasUrlParameter<String
     }
 
     public void refreshSquad() {
-        squadGrid.setItems(shownSquad.getPlayers());
+        squadForm.refreshGrid(shownSquad.getPlayers());
     }
 }
