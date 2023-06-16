@@ -1,4 +1,4 @@
-package com.kodilla.fantasyfront.views;
+package com.kodilla.fantasyfront.views.leagues.details;
 
 import com.kodilla.fantasyfront.client.LeagueClient;
 import com.kodilla.fantasyfront.domain.dto.LeagueDto;
