@@ -6,6 +6,7 @@ import com.kodilla.fantasyfront.domain.dto.PlayerDto;
 import com.kodilla.fantasyfront.domain.dto.PlayersPagedDto;
 import com.kodilla.fantasyfront.domain.dto.SquadDto;
 import com.kodilla.fantasyfront.domain.exception.NoBodyException;
+import com.kodilla.fantasyfront.views.user.UserView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;

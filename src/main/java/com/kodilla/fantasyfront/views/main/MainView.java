@@ -1,13 +1,11 @@
-package com.kodilla.fantasyfront.views;
+package com.kodilla.fantasyfront.views.main;
 
 import com.kodilla.fantasyfront.client.UserClient;
 import com.kodilla.fantasyfront.domain.dto.*;
+import com.kodilla.fantasyfront.views.user.UserView;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.EmailField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,30 +13,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class MainView extends VerticalLayout {
 
     private final UserClient userClient;
-    private final TextField usernameField;
-    private final EmailField emailField;
 
 
     @Autowired
     public MainView(UserClient userClient) {
         this.userClient = userClient;
 
-        usernameField = new TextField("Username");
-        emailField = new EmailField("Email");
-        Button createUser = new Button("Create User");
-        createUser.addClickListener(event -> saveAndExit());
-
-        VerticalLayout formLayout = new VerticalLayout();
-        formLayout.add(usernameField, emailField, createUser);
-        formLayout.setAlignItems(Alignment.CENTER);
+        FormLayout formLayout = new FormLayout(this);
 
         add(formLayout);
     }
 
-    private void saveAndExit() {
+    public void saveAndExit(String userName, String email) {
         CreateUserDto createUserDto = new CreateUserDto(
-                usernameField.getValue(),
-                emailField.getValue()
+                userName,
+                email
         );
         UserDto createdUser = userClient.createUser(createUserDto);
         Notification.show("User " + createdUser.getUsername() +  " created!");

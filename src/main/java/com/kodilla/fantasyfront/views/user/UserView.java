@@ -1,4 +1,4 @@
-package com.kodilla.fantasyfront.views;
+package com.kodilla.fantasyfront.views.user;
 
 import com.kodilla.fantasyfront.client.LeagueClient;
 import com.kodilla.fantasyfront.client.SquadClient;
@@ -7,15 +7,15 @@ import com.kodilla.fantasyfront.domain.dto.LeagueDto;
 import com.kodilla.fantasyfront.domain.dto.PlayerDto;
 import com.kodilla.fantasyfront.domain.dto.SquadDto;
 import com.kodilla.fantasyfront.domain.dto.UserDto;
+import com.kodilla.fantasyfront.views.LeaguesView;
+import com.kodilla.fantasyfront.views.main.MainView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.BeforeEvent;
@@ -31,12 +31,8 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
     private final UserClient userClient;
     private final SquadClient squadClient;
     private final LeagueClient leagueClient;
+    private final UserForm userForm;
     private UserDto user;
-
-    private final IntegerField userId;
-    private final TextField username;
-    private final TextField email;
-    private final IntegerField userPoints;
     private final TextField squadName;
     private final Grid<PlayerDto> squadGrid;
     private final Grid<LeagueDto> leagueGrid;
@@ -46,36 +42,12 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
         this.squadClient = squadClient;
         this.leagueClient = leagueClient;
 
-        userId = new IntegerField("User ID");
-        userId.setSizeFull();
-        username = new TextField("Username");
-        username.setSizeFull();
-        email = new TextField("User Email");
-        email.setSizeFull();
-        userPoints = new IntegerField("User points");
-        userPoints.setSizeFull();
+        userForm = new UserForm();
+        UserMenu userMenu = new UserMenu(this, userForm);
 
-        Button updateUser = new Button("Update");
-        updateUser.addClickListener(event ->
-                updateUser(
-                    new UserDto(
-                        userId.getValue().longValue(),
-                        username.getValue(),
-                        email.getValue(),
-                        user.getSquad(),
-                        userPoints.getValue()
-                    )));
-        Button deleteUser = new Button("Delete");
-        deleteUser.addClickListener(event -> deleteUser(userId.getValue().longValue()));
-        Button refreshUser = new Button("Refresh");
-        refreshUser.addClickListener(event -> getUser(userId.getValue().longValue()));
-
-        HorizontalLayout userMenu = new HorizontalLayout();
-        userMenu.add(updateUser, deleteUser, refreshUser);
-
-        VerticalLayout userForm = new VerticalLayout();
-        userForm.add(userId, username, email, userPoints, userMenu);
-        userForm.setWidth("25%");
+        VerticalLayout userControls = new VerticalLayout();
+        userControls.add(userForm, userMenu);
+        userControls.setWidth("25%");
 
         VerticalLayout squadForm = new VerticalLayout();
 
@@ -91,10 +63,10 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
         HorizontalLayout squadNavigation = new HorizontalLayout();
 
         Button createNewSquad = new Button("New Squad");
-        createNewSquad.addClickListener(event -> createNewSquad(userId.getValue().longValue(), squadName.getValue()));
+        createNewSquad.addClickListener(event -> createNewSquad(userForm.getUserId(), squadName.getValue()));
 
         Button addPlayers = new Button("Add players");
-        addPlayers.addClickListener(event -> addPlayers(userId.getValue().longValue(), user.getSquad().getId()));
+        addPlayers.addClickListener(event -> addPlayers(userForm.getUserId(), user.getSquad().getId()));
 
         Dialog renameSquadDialog = new Dialog();
         renameSquadDialog.setHeaderTitle("Rename squad to:");
@@ -115,7 +87,7 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
                     user.getSquad().getPlayers()
             );
             renameSquad(newSquad);
-            getUser(user.getId());
+            fetchUser(user.getId());
             renameSquadDialog.close();
         });
 
@@ -140,7 +112,7 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
 
         HorizontalLayout userAndSquad = new HorizontalLayout();
         userAndSquad.setSizeFull();
-        userAndSquad.add(userForm, squadForm);
+        userAndSquad.add(userControls, squadForm);
 
         HorizontalLayout leagueLayout = new HorizontalLayout();
 
@@ -169,7 +141,11 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
         add(userAndSquad, leagueLayout);
     }
 
-    public void getUser(Long id) {
+    public UserDto getUser() {
+        return user;
+    }
+
+    public void fetchUser(Long id) {
         user = userClient.getUser(id);
         refresh(user);
     }
@@ -206,14 +182,14 @@ public class UserView extends VerticalLayout implements HasUrlParameter<Long> {
 
     @Override
     public void setParameter(BeforeEvent event, Long parameter) {
-        getUser(parameter);
+        fetchUser(parameter);
     }
 
     public void refresh(UserDto user) {
-        userId.setValue(Math.toIntExact(user.getId()));
-        username.setValue(user.getUsername());
-        email.setValue(user.getEmail());
-        userPoints.setValue(user.getPoints());
+        userForm.setUserId(user.getId());
+        userForm.setUsername(user.getUsername());
+        userForm.setEmail(user.getEmail());
+        userForm.setUserPoints(user.getPoints());
         if(user.getSquad().getName() != null) {
             squadName.setValue(user.getSquad().getName());
         }
