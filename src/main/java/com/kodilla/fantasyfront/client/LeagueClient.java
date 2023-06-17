@@ -5,6 +5,7 @@ import com.kodilla.fantasyfront.domain.dto.LeagueDto;
 import com.kodilla.fantasyfront.domain.exception.NoBodyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -52,7 +53,7 @@ public class LeagueClient {
         URI url = buildLeagueIdUrl(id);
         restTemplate.delete(url);
     }
-    public void addUser(Long leagueId, Long userId) {
+    public void addUser(Long leagueId, Long userId) throws HttpClientErrorException {
         URI url = buildAddUserUrl(leagueId, userId);
         restTemplate.put(url, LeagueDto.class);
     }

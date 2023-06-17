@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
@@ -107,7 +108,11 @@ public class LeaguesView extends VerticalLayout implements HasUrlParameter<Long>
     }
 
     public void enterLeague(Long leagueId, Long userId) {
-        leagueClient.addUser(leagueId, userId);
+        try {
+            leagueClient.addUser(leagueId, userId);
+        } catch (HttpClientErrorException e) {
+            Notification.show(e.getMessage());
+        }
     }
 
     public void refreshLeaguesGrid() {
