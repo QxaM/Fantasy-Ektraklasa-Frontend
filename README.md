@@ -1,4 +1,7 @@
 # Fantasy Ekstraklasa Frontend
+
+backend: https://github.com/QxaM/Fantasy-Ekstraklasa
+
 Welcome to Fantasy Ekstraklasa project! This project is a frontend to the application and allows for some very simple navigation and API usage.
 
 To start navigate to http://localhost:8081
